@@ -1,6 +1,10 @@
 const fs = require("fs/promises");
 const path = require("path");
-const { writeFile, generateNewId } = require("../services/services");
+const {
+  writeFile,
+  generateNewId,
+  findContact,
+} = require("../services/services");
 
 const contactsPath = path.join(__dirname, "contacts.json");
 
@@ -11,50 +15,46 @@ const listContacts = async (path) => {
 
 const getContactById = async (path, contactId) => {
   const allContacts = await listContacts(path);
-
-  const contact = allContacts.find((contact) => contact.id === contactId);
+  const contact = findContact(allContacts, contactId);
   return contact;
 };
 
 const removeContact = async (path, contactId) => {
   const allContacts = await listContacts(path);
-  const newContactsList = allContacts.filter(
-    (contact) => contact.id !== contactId
-  );
-  await writeFile(path, newContactsList);
+  const deleted = findContact(allContacts, contactId);
+  if (deleted) {
+    const newContactsList = allContacts.filter(
+      (contact) => contact.id !== contactId
+    );
+    await writeFile(path, newContactsList);
+  }
+  return deleted;
 };
 
 const addContact = async (path, body) => {
   const allContacts = await listContacts(path);
-  // const check = allContacts.find(
-  //   (contact) =>
-  //     contact.name === body.name ||
-  //     contact.email === body.email ||
-  //     contact.phone === body.phone
-  // );
-  // if (check) {
-  //   return console.table(allContacts);
-  // }
   const newContact = { id: await generateNewId(), ...body };
   const newContactsList = [...allContacts, newContact];
   await writeFile(path, newContactsList);
-  console.log("New contact list -->", newContactsList);
   return newContact;
 };
 
 const updateContact = async (path, contactId, body) => {
-  const allContacts = listContacts(path);
-  const updContactList = allContacts.reduce((acc, contact) => {
-    if (contact.id !== contactId) {
-      acc = { ...acc, contact };
-    } else {
-      const updContact = { ...contact, ...body };
-      acc = { ...acc, updContact };
-    }
-    return acc;
-  }, {});
-
-  await writeFile(path, updContactList);
+  const allContacts = await listContacts(path);
+  const contactToUpd = findContact(allContacts, contactId);
+  const updContact = { ...contactToUpd, ...body };
+  if (contactToUpd) {
+    const updContactList = allContacts.reduce((acc, contact) => {
+      if (contact.id !== contactId) {
+        acc = [...acc, contact];
+      } else {
+        acc = [...acc, updContact];
+      }
+      return acc;
+    }, []);
+    await writeFile(path, updContactList);
+  }
+  return updContact;
 };
 
 module.exports = {
