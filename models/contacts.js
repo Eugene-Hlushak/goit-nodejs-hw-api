@@ -1,10 +1,6 @@
 const fs = require("fs/promises");
 const path = require("path");
-const {
-  writeFile,
-  generateNewId,
-  findContact,
-} = require("../services/services");
+const { writeFile, generateNewId, findContact } = require("../services");
 
 const contactsPath = path.join(__dirname, "contacts.json");
 

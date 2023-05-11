@@ -7,80 +7,98 @@ const {
   updateContact,
   contactsPath,
 } = require("../../models/contacts");
+const {
+  HttpError,
+  // getAllContacts,
+  checkContacts,
+  addContactValidation,
+} = require("../../services");
 
 const router = express.Router();
 
 router.get("/", async (req, res, next) => {
-  const contacts = await listContacts(contactsPath);
-  res.json(contacts);
+  try {
+    const contacts = await listContacts(contactsPath);
+    res.json(contacts);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
 });
 
 router.get("/:contactId", async (req, res, next) => {
-  const id = req.params.contactId;
-  const contact = await getContactById(contactsPath, id);
-  if (contact) {
-    res.json(contact);
-  } else {
-    res.status(404).json({ message: "Not found" });
+  try {
+    const id = req.params.contactId;
+    const contact = await getContactById(contactsPath, id);
+    if (!contact) {
+      throw HttpError(404, "Not found");
+    } else {
+      res.json(contact);
+    }
+  } catch (error) {
+    const { status = "500", message = "Server error" } = error;
+    res.status(status).json({ message });
   }
 });
 
 router.post("/", async (req, res, next) => {
   const { name, phone, email } = req.body;
-
-  // console.log("req.body --> ", req.body);
-  // console.log("name --> ", req.body.name);
-  // console.log("email --> ", req.body.email);
-  // console.log("phone --> ", req.body.phone);
-  // console.log("req.params --> ", req.params);
-  // console.log("req.query --> ", req.query);
-  if (!name || !email || !phone) {
-    res.status(400).json({ message: "missing required name field" });
-  } else {
-    const contacts = await listContacts(contactsPath);
-    const check = contacts.find(
-      (contact) =>
-        contact.name === name ||
-        contact.email === email ||
-        contact.phone === phone
-    );
-    if (check) {
-      console.log(check);
-      res.status(400).json({
-        message: `There is already exist contact with the same data - id = ${check.id}`,
-      });
+  try {
+    const isError = addContactValidation(req.body);
+    ``;
+    if (isError) {
+      throw HttpError(400, isError);
     } else {
-      const newContact = await addContact(contactsPath, req.body);
-      res.status(201).json(newContact);
+      const check = await checkContacts(contactsPath, name, email, phone);
+
+      if (check) {
+        throw HttpError(
+          400,
+          `There is already exist contact with the same data. Name = ${check.name}`
+        );
+      } else {
+        const newContact = await addContact(contactsPath, req.body);
+        res.status(201).json(newContact);
+      }
     }
+  } catch (error) {
+    const { status = "500", message = "Server error" } = error;
+    res.status(status).json({ message });
   }
 });
 
 router.delete("/:contactId", async (req, res, next) => {
   const id = req.params.contactId;
-  const deletedContact = await removeContact(contactsPath, id);
-  console.log(deletedContact);
-  if (deletedContact) {
-    res.json({ message: "contact deleted" });
-  } else {
-    res.status(404).json({ message: "Not found" });
+  try {
+    const deletedContact = await removeContact(contactsPath, id);
+    if (!deletedContact) {
+      throw HttpError(404, "Not found");
+    } else {
+      res.json({ message: "contact deleted" });
+    }
+  } catch (error) {
+    const { status = "500", message = "Server error" } = error;
+    res.status(status).json(message);
   }
 });
 
 router.put("/:contactId", async (req, res, next) => {
-  console.log("req.body --> ", req.body);
-  const id = req.params.contactId;
-  const { name, phone, email } = req.body;
+  try {
+    const id = req.params.contactId;
+    const { name, phone, email } = req.body;
 
-  if (!name && !email && !phone) {
-    res.status(400).json({ message: "missing fields" });
-  } else {
-    const updContact = await updateContact(contactsPath, id, req.body);
-    if (!updContact) {
-      res.status(404).json({ message: "Not found" });
+    if (!name && !email && !phone) {
+      throw HttpError(400, "missing fields");
     } else {
-      res.json(updContact);
+      const updContact = await updateContact(contactsPath, id, req.body);
+      if (!updContact) {
+        res.status(404).json({ message: "Not found" });
+      } else {
+        res.json(updContact);
+      }
     }
+  } catch (error) {
+    const { status = "500", message = "Server error" } = error;
+    res.status(status).json({ message });
   }
 });
 
