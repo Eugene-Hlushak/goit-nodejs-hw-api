@@ -34,11 +34,3 @@ module.exports = {
   findContact,
   checkContacts,
 };
-
-// console.log(result);
-// console.log("req.body --> ", req.body);
-// console.log("name --> ", req.body.name);
-// console.log("email --> ", req.body.email);
-// console.log("phone --> ", req.body.phone);
-// console.log("req.params --> ", req.params);
-// console.log("req.query --> ", req.query);
