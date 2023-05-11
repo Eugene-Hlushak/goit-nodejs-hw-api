@@ -12,6 +12,7 @@ const {
   // getAllContacts,
   checkContacts,
   addContactValidation,
+  updateContactValidation,
 } = require("../../services");
 
 const router = express.Router();
@@ -44,7 +45,6 @@ router.post("/", async (req, res, next) => {
   const { name, phone, email } = req.body;
   try {
     const isError = addContactValidation(req.body);
-    ``;
     if (isError) {
       throw HttpError(400, isError);
     } else {
@@ -82,18 +82,22 @@ router.delete("/:contactId", async (req, res, next) => {
 });
 
 router.put("/:contactId", async (req, res, next) => {
+  const id = req.params.contactId;
+  const { name, phone, email } = req.body;
   try {
-    const id = req.params.contactId;
-    const { name, phone, email } = req.body;
-
     if (!name && !email && !phone) {
       throw HttpError(400, "missing fields");
     } else {
-      const updContact = await updateContact(contactsPath, id, req.body);
-      if (!updContact) {
-        res.status(404).json({ message: "Not found" });
+      const isError = updateContactValidation(req.body);
+      if (isError) {
+        throw HttpError(400, isError);
       } else {
-        res.json(updContact);
+        const updContact = await updateContact(contactsPath, id, req.body);
+        if (!updContact) {
+          throw HttpError(404, "Not found");
+        } else {
+          res.json(updContact);
+        }
       }
     }
   } catch (error) {

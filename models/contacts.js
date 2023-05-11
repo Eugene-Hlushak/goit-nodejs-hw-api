@@ -1,6 +1,11 @@
 const fs = require("fs/promises");
 const path = require("path");
-const { writeFile, generateNewId, findContact } = require("../services");
+const {
+  writeFile,
+  generateNewId,
+  findContact,
+  getAllContacts,
+} = require("../services");
 
 const contactsPath = path.join(__dirname, "contacts.json");
 
@@ -10,13 +15,13 @@ const listContacts = async (path) => {
 };
 
 const getContactById = async (path, contactId) => {
-  const allContacts = await listContacts(path);
+  const allContacts = await getAllContacts(path);
   const contact = findContact(allContacts, contactId);
   return contact;
 };
 
 const removeContact = async (path, contactId) => {
-  const allContacts = await listContacts(path);
+  const allContacts = await getAllContacts(path);
   const deleted = findContact(allContacts, contactId);
   if (deleted) {
     const newContactsList = allContacts.filter(
@@ -28,7 +33,7 @@ const removeContact = async (path, contactId) => {
 };
 
 const addContact = async (path, body) => {
-  const allContacts = await listContacts(path);
+  const allContacts = await getAllContacts(path);
   const newContact = { id: await generateNewId(), ...body };
   const newContactsList = [...allContacts, newContact];
   await writeFile(path, newContactsList);
@@ -36,7 +41,7 @@ const addContact = async (path, body) => {
 };
 
 const updateContact = async (path, contactId, body) => {
-  const allContacts = await listContacts(path);
+  const allContacts = await getAllContacts(path);
   const contactToUpd = findContact(allContacts, contactId);
   const updContact = { ...contactToUpd, ...body };
   if (contactToUpd) {
