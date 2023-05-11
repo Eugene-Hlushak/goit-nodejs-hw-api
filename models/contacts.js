@@ -23,6 +23,7 @@ const getContactById = async (path, contactId) => {
 const removeContact = async (path, contactId) => {
   const allContacts = await getAllContacts(path);
   const deleted = findContact(allContacts, contactId);
+
   if (deleted) {
     const newContactsList = allContacts.filter(
       (contact) => contact.id !== contactId
@@ -36,6 +37,7 @@ const addContact = async (path, body) => {
   const allContacts = await getAllContacts(path);
   const newContact = { id: await generateNewId(), ...body };
   const newContactsList = [...allContacts, newContact];
+
   await writeFile(path, newContactsList);
   return newContact;
 };
@@ -44,6 +46,7 @@ const updateContact = async (path, contactId, body) => {
   const allContacts = await getAllContacts(path);
   const contactToUpd = findContact(allContacts, contactId);
   const updContact = { ...contactToUpd, ...body };
+
   if (contactToUpd) {
     const updContactList = allContacts.reduce((acc, contact) => {
       if (contact.id !== contactId) {

@@ -9,7 +9,6 @@ const {
 } = require("../../models/contacts");
 const {
   HttpError,
-  // getAllContacts,
   checkContacts,
   addContactValidation,
   updateContactValidation,
@@ -42,13 +41,15 @@ router.get("/:contactId", async (req, res, next) => {
 });
 
 router.post("/", async (req, res, next) => {
-  const { name, phone, email } = req.body;
+  const isValid = addContactValidation(req.body);
+
   try {
-    const isError = addContactValidation(req.body);
-    if (isError) {
-      throw HttpError(400, isError);
+    if (isValid.error) {
+      const errorMessage = isValid.error.details[0].message;
+      throw HttpError(400, errorMessage);
     } else {
-      const check = await checkContacts(contactsPath, name, email, phone);
+      const data = isValid.value;
+      const check = await checkContacts(contactsPath, data);
 
       if (check) {
         throw HttpError(
@@ -56,7 +57,7 @@ router.post("/", async (req, res, next) => {
           `There is already exist contact with the same data. Name = ${check.name}`
         );
       } else {
-        const newContact = await addContact(contactsPath, req.body);
+        const newContact = await addContact(contactsPath, data);
         res.status(201).json(newContact);
       }
     }
@@ -82,17 +83,18 @@ router.delete("/:contactId", async (req, res, next) => {
 });
 
 router.put("/:contactId", async (req, res, next) => {
-  const id = req.params.contactId;
   const { name, phone, email } = req.body;
   try {
     if (!name && !email && !phone) {
       throw HttpError(400, "missing fields");
     } else {
-      const isError = updateContactValidation(req.body);
-      if (isError) {
-        throw HttpError(400, isError);
+      const isValid = updateContactValidation(req.body);
+      if (isValid.error) {
+        const errorMessage = isValid.error.details[0].message;
+        throw HttpError(400, errorMessage);
       } else {
-        const updContact = await updateContact(contactsPath, id, req.body);
+        const id = req.params.contactId;
+        const updContact = await updateContact(contactsPath, id, isValid.value);
         if (!updContact) {
           throw HttpError(404, "Not found");
         } else {

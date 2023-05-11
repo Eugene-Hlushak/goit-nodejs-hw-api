@@ -1,13 +1,17 @@
 const Joi = require("joi");
 
 const addContactSchema = Joi.object({
-  name: Joi.string().min(3).max(30).required(),
+  name: Joi.string().trim().min(3).max(30).required(),
 
   phone: Joi.string()
-    .pattern(/^[-0-9]+$/, "numbers")
+    .trim()
+    .pattern(/^[-()\s\d+]+$/, "numbers")
+    .min(9)
+    .max(20)
     .required(),
 
   email: Joi.string()
+    .trim()
     .email({
       minDomainSegments: 2,
       tlds: { allow: ["com", "net"] },
@@ -16,29 +20,28 @@ const addContactSchema = Joi.object({
 });
 
 const updateContactSchema = Joi.object({
-  name: Joi.string().min(3).max(30),
-
-  phone: Joi.string().pattern(/^[-0-9]+$/, "numbers"),
-  email: Joi.string().email({
-    minDomainSegments: 2,
-    tlds: { allow: ["com", "net"] },
-  }),
+  name: Joi.string().trim().min(3).max(30),
+  phone: Joi.string()
+    .trim()
+    .pattern(/^[-()\s\d+]+$/, "numbers")
+    .min(9)
+    .max(20),
+  email: Joi.string()
+    .trim()
+    .email({
+      minDomainSegments: 2,
+      tlds: { allow: ["com", "net"] },
+    }),
 });
 
 const addContactValidation = (obj) => {
-  const isError = addContactSchema.validate(obj);
-  if (isError.error) {
-    const errorMessage = isError.error.details[0].message;
-    return errorMessage;
-  }
+  const isValid = addContactSchema.validate(obj);
+  return isValid;
 };
 
 const updateContactValidation = (obj) => {
   const isValid = updateContactSchema.validate(obj);
-  if (isValid.error) {
-    const errorMessage = isValid.error.details[0].message;
-    return errorMessage;
-  }
+  return isValid;
 };
 
 module.exports = {

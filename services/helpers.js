@@ -15,7 +15,8 @@ const findContact = (contacts, id) =>
 
 const generateNewId = async () => (await nanoid).nanoid();
 
-const checkContacts = async (path, name, email, phone) => {
+const checkContacts = async (path, contact) => {
+  const { name, email, phone } = contact;
   const contacts = await getAllContacts(path);
   const check = contacts.find(
     (contact) =>
