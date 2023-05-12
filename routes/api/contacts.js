@@ -12,6 +12,7 @@ const {
   checkContacts,
   addContactValidation,
   updateContactValidation,
+  checkMissingFields,
 } = require("../../services");
 
 const router = express.Router();
@@ -42,9 +43,12 @@ router.get("/:contactId", async (req, res, next) => {
 
 router.post("/", async (req, res, next) => {
   const isValid = addContactValidation(req.body);
+  const isMissingField = checkMissingFields(isValid.value);
 
   try {
-    if (isValid.error) {
+    if (isMissingField) {
+      throw HttpError(400, isMissingField);
+    } else if (isValid.error) {
       const errorMessage = isValid.error.details[0].message;
       throw HttpError(400, errorMessage);
     } else {
@@ -85,7 +89,6 @@ router.delete("/:contactId", async (req, res, next) => {
 router.put("/:contactId", async (req, res, next) => {
   const isValid = updateContactValidation(req.body);
   const { name, phone, email } = isValid.value;
-
   try {
     if (!name && !email && !phone) {
       throw HttpError(400, "missing fields");

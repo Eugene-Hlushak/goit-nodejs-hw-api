@@ -5,6 +5,7 @@ const {
   generateNewId,
   findContact,
   checkContacts,
+  checkMissingFields,
 } = require("./helpers");
 const {
   addContactValidation,
@@ -20,4 +21,12 @@ module.exports = {
   checkContacts,
   addContactValidation,
   updateContactValidation,
+  checkMissingFields,
 };
+
+// const { name, phone, email } = isValid.value;
+// const isMissingField = checkMissingFields(isValid.value);
+// try {
+//   if (isMissingField) {
+//     throw HttpError(400, isMissingField);
+//   }

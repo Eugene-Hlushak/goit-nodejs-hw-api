@@ -1,22 +1,19 @@
 const Joi = require("joi");
 
 const addContactSchema = Joi.object({
-  name: Joi.string().trim().min(3).max(30).required(),
+  name: Joi.string().trim().min(3).max(30),
 
   phone: Joi.string()
     .trim()
     .pattern(/^[-()\s\d+]+$/, "numbers")
     .min(7)
-    .max(20)
-    .required(),
-
+    .max(20),
   email: Joi.string()
     .trim()
     .email({
       minDomainSegments: 2,
       tlds: { allow: ["com", "net"] },
-    })
-    .required(),
+    }),
 });
 
 const updateContactSchema = Joi.object({

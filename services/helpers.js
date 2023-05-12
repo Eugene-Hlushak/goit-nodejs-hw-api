@@ -17,6 +17,7 @@ const generateNewId = async () => (await nanoid).nanoid();
 
 const checkContacts = async (path, contact) => {
   const { name, email, phone } = contact;
+
   const contacts = await getAllContacts(path);
   const check = contacts.find(
     (contact) =>
@@ -27,10 +28,26 @@ const checkContacts = async (path, contact) => {
   return check;
 };
 
+const setMessage = (field) => `missing required ${field} field`;
+
+const checkMissingFields = (obj) => {
+  const { name, email, phone } = obj;
+  if (!name) {
+    return setMessage("name");
+  }
+  if (!email) {
+    return setMessage("email");
+  }
+  if (!phone) {
+    return setMessage("phone");
+  }
+};
+
 module.exports = {
   getAllContacts,
   writeFile,
   generateNewId,
   findContact,
   checkContacts,
+  checkMissingFields,
 };
