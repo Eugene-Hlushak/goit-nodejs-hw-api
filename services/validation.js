@@ -6,7 +6,7 @@ const addContactSchema = Joi.object({
   phone: Joi.string()
     .trim()
     .pattern(/^[-()\s\d+]+$/, "numbers")
-    .min(9)
+    .min(7)
     .max(20)
     .required(),
 
@@ -24,7 +24,7 @@ const updateContactSchema = Joi.object({
   phone: Joi.string()
     .trim()
     .pattern(/^[-()\s\d+]+$/, "numbers")
-    .min(9)
+    .min(7)
     .max(20),
   email: Joi.string()
     .trim()

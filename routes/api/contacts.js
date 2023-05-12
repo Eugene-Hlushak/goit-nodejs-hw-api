@@ -83,12 +83,13 @@ router.delete("/:contactId", async (req, res, next) => {
 });
 
 router.put("/:contactId", async (req, res, next) => {
-  const { name, phone, email } = req.body;
+  const isValid = updateContactValidation(req.body);
+  const { name, phone, email } = isValid.value;
+
   try {
     if (!name && !email && !phone) {
       throw HttpError(400, "missing fields");
     } else {
-      const isValid = updateContactValidation(req.body);
       if (isValid.error) {
         const errorMessage = isValid.error.details[0].message;
         throw HttpError(400, errorMessage);
