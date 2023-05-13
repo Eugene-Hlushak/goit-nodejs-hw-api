@@ -4,6 +4,7 @@ const {
   generateNewId,
   findContact,
   getAllContacts,
+  HttpError,
 } = require("../services");
 
 const contactsPath = path.join(__dirname, "contacts.json");
@@ -17,10 +18,19 @@ const listContacts = async (req, res, next) => {
   }
 };
 
-const getContactById = async (path, contactId) => {
-  const allContacts = await getAllContacts(path);
-  const contact = findContact(allContacts, contactId);
-  return contact;
+const getContactById = async (req, res, next) => {
+  try {
+    const id = req.params.contactId;
+    const contact = await findContact(contactsPath, id);
+    if (!contact) {
+      throw HttpError(404, "Not found");
+    } else {
+      res.json(contact);
+    }
+  } catch (error) {
+    const { status = "500", message = "Server error" } = error;
+    res.status(status).json({ message });
+  }
 };
 
 const removeContact = async (path, contactId) => {

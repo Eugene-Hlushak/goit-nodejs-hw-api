@@ -10,8 +10,11 @@ const writeFile = async (path, data) => {
   await fs.writeFile(path, JSON.stringify(data, null, 2));
 };
 
-const findContact = (contacts, id) =>
-  contacts.find((contact) => contact.id === id);
+const findContact = async (path, contactId) => {
+  const allContacts = await getAllContacts(path);
+  const contact = allContacts.find(({ id }) => id === contactId);
+  return contact;
+};
 
 const generateNewId = async () => (await nanoid).nanoid();
 

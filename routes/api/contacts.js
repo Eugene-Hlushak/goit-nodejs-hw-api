@@ -19,20 +19,7 @@ const router = express.Router();
 
 router.get("/", listContacts);
 
-router.get("/:contactId", async (req, res, next) => {
-  try {
-    const id = req.params.contactId;
-    const contact = await getContactById(contactsPath, id);
-    if (!contact) {
-      throw HttpError(404, "Not found");
-    } else {
-      res.json(contact);
-    }
-  } catch (error) {
-    const { status = "500", message = "Server error" } = error;
-    res.status(status).json({ message });
-  }
-});
+router.get("/:contactId", getContactById);
 
 router.post("/", async (req, res, next) => {
   const isValid = addContactValidation(req.body);
