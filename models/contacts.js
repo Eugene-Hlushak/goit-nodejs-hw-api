@@ -1,4 +1,3 @@
-const fs = require("fs/promises");
 const path = require("path");
 const {
   writeFile,
@@ -9,9 +8,13 @@ const {
 
 const contactsPath = path.join(__dirname, "contacts.json");
 
-const listContacts = async (path) => {
-  const buffer = await fs.readFile(path);
-  return JSON.parse(buffer) || null;
+const listContacts = async (req, res, next) => {
+  try {
+    const contacts = await getAllContacts(contactsPath);
+    res.json(contacts);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
 };
 
 const getContactById = async (path, contactId) => {
