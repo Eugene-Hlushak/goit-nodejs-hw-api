@@ -1,32 +1,23 @@
 const { HttpError } = require("./HttpError");
 const {
   getAllContacts,
-  writeFile,
-  generateNewId,
   findContact,
   checkContacts,
   checkMissingFields,
+  deleteContact,
+  createNewContact,
+  updContact,
 } = require("./helpers");
-const {
-  addContactValidation,
-  updateContactValidation,
-} = require("./validation");
+const { contactValidation } = require("./validation");
 
 module.exports = {
   HttpError,
   getAllContacts,
-  writeFile,
-  generateNewId,
   findContact,
   checkContacts,
-  addContactValidation,
-  updateContactValidation,
+  contactValidation,
   checkMissingFields,
+  deleteContact,
+  createNewContact,
+  updContact,
 };
-
-// const { name, phone, email } = isValid.value;
-// const isMissingField = checkMissingFields(isValid.value);
-// try {
-//   if (isMissingField) {
-//     throw HttpError(400, isMissingField);
-//   }

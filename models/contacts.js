@@ -1,10 +1,14 @@
 const path = require("path");
 const {
-  writeFile,
-  generateNewId,
   findContact,
   getAllContacts,
   HttpError,
+  deleteContact,
+  createNewContact,
+  checkContacts,
+  checkMissingFields,
+  contactValidation,
+  updContact,
 } = require("../services");
 
 const contactsPath = path.join(__dirname, "contacts.json");
@@ -33,45 +37,79 @@ const getContactById = async (req, res, next) => {
   }
 };
 
-const removeContact = async (path, contactId) => {
-  const allContacts = await getAllContacts(path);
-  const deleted = findContact(allContacts, contactId);
-
-  if (deleted) {
-    const newContactsList = allContacts.filter(
-      (contact) => contact.id !== contactId
-    );
-    await writeFile(path, newContactsList);
+const removeContact = async (req, res, next) => {
+  try {
+    const id = req.params.contactId;
+    const deletedContact = await deleteContact(contactsPath, id);
+    if (!deletedContact) {
+      throw HttpError(404, "Not found");
+    } else {
+      res.json({ message: "contact deleted" });
+    }
+  } catch (error) {
+    const { status = "500", message = "Server error" } = error;
+    res.status(status).json({ message });
   }
-  return deleted;
 };
 
-const addContact = async (path, body) => {
-  const allContacts = await getAllContacts(path);
-  const newContact = { id: await generateNewId(), ...body };
-  const newContactsList = [...allContacts, newContact];
+const addContact = async (req, res, next) => {
+  try {
+    const isValid = contactValidation(req.body);
+    const isMissingField = checkMissingFields(req.body);
 
-  await writeFile(path, newContactsList);
-  return newContact;
-};
+    if (isMissingField) {
+      throw HttpError(400, isMissingField);
+    } else if (isValid.error) {
+      const errorMessage = isValid.error.details[0].message;
+      throw HttpError(400, errorMessage);
+    } else {
+      const data = isValid.value;
+      const check = await checkContacts(contactsPath, data);
 
-const updateContact = async (path, contactId, body) => {
-  const allContacts = await getAllContacts(path);
-  const contactToUpd = findContact(allContacts, contactId);
-  const updContact = { ...contactToUpd, ...body };
-
-  if (contactToUpd) {
-    const updContactList = allContacts.reduce((acc, contact) => {
-      if (contact.id !== contactId) {
-        acc = [...acc, contact];
+      if (check) {
+        throw HttpError(
+          400,
+          `There is already exist contact with the same data. Name = ${check.name}`
+        );
       } else {
-        acc = [...acc, updContact];
+        const newContact = await createNewContact(contactsPath, data);
+        res.status(201).json(newContact);
       }
-      return acc;
-    }, []);
-    await writeFile(path, updContactList);
+    }
+  } catch (error) {
+    const { status = "500", message = "Server error" } = error;
+    res.status(status).json({ message });
   }
-  return updContact;
+};
+
+const updateContact = async (req, res, next) => {
+  try {
+    const isValid = contactValidation(req.body);
+    const { name, phone, email } = isValid.value;
+    if (!name && !email && !phone) {
+      throw HttpError(400, "missing fields");
+    } else {
+      if (isValid.error) {
+        const errorMessage = isValid.error.details[0].message;
+        throw HttpError(400, errorMessage);
+      } else {
+        const id = req.params.contactId;
+        const updatedContact = await updContact(
+          contactsPath,
+          id,
+          isValid.value
+        );
+        if (!updatedContact) {
+          throw HttpError(404, "Not found");
+        } else {
+          res.json(updatedContact);
+        }
+      }
+    }
+  } catch (error) {
+    const { status = "500", message = "Server error" } = error;
+    res.status(status).json({ message });
+  }
 };
 
 module.exports = {
@@ -80,5 +118,4 @@ module.exports = {
   removeContact,
   addContact,
   updateContact,
-  contactsPath,
 };

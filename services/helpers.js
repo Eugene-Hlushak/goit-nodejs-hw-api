@@ -16,6 +16,47 @@ const findContact = async (path, contactId) => {
   return contact;
 };
 
+const deleteContact = async (path, contactId) => {
+  const allContacts = await getAllContacts(path);
+  const deleted = allContacts.find(({ id }) => id === contactId);
+
+  if (deleted) {
+    const newContactsList = allContacts.filter(
+      (contact) => contact.id !== contactId
+    );
+    await writeFile(path, newContactsList);
+  }
+  return deleted;
+};
+
+const createNewContact = async (path, body) => {
+  const allContacts = await getAllContacts(path);
+  const newContact = { id: await generateNewId(), ...body };
+  const newContactsList = [...allContacts, newContact];
+
+  await writeFile(path, newContactsList);
+  return newContact;
+};
+
+const updContact = async (path, contactId, body) => {
+  const allContacts = await getAllContacts(path);
+  const contactToUpd = allContacts.find(({ id }) => id === contactId);
+  const updatedContact = { ...contactToUpd, ...body };
+
+  if (contactToUpd) {
+    const updContactList = allContacts.reduce((acc, contact) => {
+      if (contact.id !== contactId) {
+        acc = [...acc, contact];
+      } else {
+        acc = [...acc, updatedContact];
+      }
+      return acc;
+    }, []);
+    await writeFile(path, updContactList);
+  }
+  return updatedContact;
+};
+
 const generateNewId = async () => (await nanoid).nanoid();
 
 const checkContacts = async (path, contact) => {
@@ -48,9 +89,10 @@ const checkMissingFields = (obj) => {
 
 module.exports = {
   getAllContacts,
-  writeFile,
-  generateNewId,
   findContact,
   checkContacts,
   checkMissingFields,
+  deleteContact,
+  createNewContact,
+  updContact,
 };
