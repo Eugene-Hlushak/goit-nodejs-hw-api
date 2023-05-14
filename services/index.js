@@ -1,23 +1,23 @@
 const { HttpError } = require("./HttpError");
 const {
-  getAllContacts,
+  writeFile,
   findContact,
   checkContacts,
-  checkMissingFields,
-  deleteContact,
-  createNewContact,
-  updContact,
+  generateNewId,
 } = require("./helpers");
-const { contactValidation } = require("./validation");
+const {
+  addContactSchema,
+  contactValidation,
+  updContactSchema,
+} = require("./validation");
 
 module.exports = {
   HttpError,
-  getAllContacts,
+  writeFile,
   findContact,
   checkContacts,
+  addContactSchema,
+  updContactSchema,
   contactValidation,
-  checkMissingFields,
-  deleteContact,
-  createNewContact,
-  updContact,
+  generateNewId,
 };
