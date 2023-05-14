@@ -58,7 +58,6 @@ const updateContact = async (req, res, next) => {
   const contactBody = contactValidation(updContactSchema, req.body);
   const id = req.params.contactId;
   const updatedContact = await updContact(id, contactBody);
-  console.log(updatedContact);
   if (!updatedContact) {
     throw HttpError(404, "Not found");
   } else {

@@ -5,7 +5,7 @@ const validateContactData = (schema) => {
     if (Object.keys(req.body).length === 0) {
       next(HttpError(400, "missing fields"));
     }
-    console.log(schema);
+
     const { error } = schema.validate(req.body);
     if (error) {
       const missingField = error.details[0].context.key;
