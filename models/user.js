@@ -38,6 +38,7 @@ const signSchema = Joi.object({
     })
     .required(),
   password: Joi.string().trim().min(6).required(),
+  subscription: Joi.string().trim(),
 });
 
 const authSchemas = {
