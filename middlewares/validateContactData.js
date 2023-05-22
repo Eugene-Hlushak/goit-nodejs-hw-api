@@ -51,7 +51,34 @@ const validateContactFavorite = (schema) => {
   return func;
 };
 
+const validateUserData = (schema) => {
+  const func = async (req, res, next) => {
+    if (Object.keys(req.body).length === 0) {
+      next(HttpError(400, "missing fields"));
+    }
+
+    const { error } = schema.validate(req.body);
+    if (error) {
+      const missingField = error.details[0].context.key;
+      console.log(error.details);
+      const { type } = error.details[0];
+      if (type === "any.required") {
+        next(HttpError(400, `Missing required ${missingField} field`));
+      }
+      if (type === "string.empty") {
+        next(
+          HttpError(400, `Field ${missingField} is not allowed to be empty`)
+        );
+      }
+    }
+
+    next();
+  };
+  return func;
+};
+
 module.exports = {
   validateContactData,
   validateContactFavorite,
+  validateUserData,
 };

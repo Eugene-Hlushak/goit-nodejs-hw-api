@@ -1,6 +1,6 @@
 const { ctrlWrapper } = require("../decorators/ctrlWrapper");
-const { Contact, schemas } = require("../models/contact");
-const { HttpError, contactValidation } = require("../services");
+const { Contact, contactSchemas } = require("../models/contact");
+const { HttpError, bodyValidation } = require("../services");
 
 const listContacts = async (req, res) => {
   const contacts = await Contact.find();
@@ -25,13 +25,13 @@ const removeContact = async (req, res, next) => {
 };
 
 const addContact = async (req, res, next) => {
-  const body = contactValidation(schemas.addContactSchema, req.body);
+  const body = bodyValidation(contactSchemas.addContactSchema, req.body);
   const result = await Contact.create(body);
   res.status(201).json(result);
 };
 
 const updateContact = async (req, res, next) => {
-  const body = contactValidation(schemas.updContactSchema, req.body);
+  const body = bodyValidation(contactSchemas.updContactSchema, req.body);
   const id = req.params.contactId;
   const updatedContact = await Contact.findByIdAndUpdate(id, body, {
     new: true,
@@ -44,7 +44,7 @@ const updateContact = async (req, res, next) => {
 };
 
 const updateStatusContact = async (req, res, next) => {
-  const body = contactValidation(schemas.updContactStatusSchema, req.body);
+  const body = bodyValidation(contactSchemas.updContactStatusSchema, req.body);
   const id = req.params.contactId;
   const updatedContact = await Contact.findByIdAndUpdate(id, body, {
     new: true,
