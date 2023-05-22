@@ -3,7 +3,7 @@ const {
   validateContactData,
   validateContactFavorite,
   validateUserData,
-} = require("./validateContactData");
+} = require("./validateData");
 
 module.exports = {
   isValidId,

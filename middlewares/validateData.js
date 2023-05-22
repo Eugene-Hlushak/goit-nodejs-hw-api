@@ -70,6 +70,14 @@ const validateUserData = (schema) => {
           HttpError(400, `Field ${missingField} is not allowed to be empty`)
         );
       }
+      if (type === "any.only") {
+        next(
+          HttpError(
+            400,
+            `Field ${missingField} must be one of [starter, pro ,business]`
+          )
+        );
+      }
     }
 
     next();
