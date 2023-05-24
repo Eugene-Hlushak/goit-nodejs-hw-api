@@ -2,6 +2,9 @@ const { ctrlWrapper } = require("../decorators/ctrlWrapper");
 const { User, authSchemas } = require("../models/user");
 const { HttpError, bodyValidation } = require("../services");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
+const { SECRET_KEY } = process.env;
 
 async function getUser(data) {
   const body = bodyValidation(authSchemas.signSchema, data);
@@ -9,7 +12,7 @@ async function getUser(data) {
   return { user, body };
 }
 
-const signUp = async (req, res, next) => {
+const register = async (req, res, next) => {
   const { user, body } = await getUser(req.body);
   if (user) {
     throw HttpError(409, "Email in use");
@@ -22,7 +25,7 @@ const signUp = async (req, res, next) => {
   res.status(201).json({ user: { email, subscription } });
 };
 
-const logIn = async (req, res, next) => {
+const login = async (req, res, next) => {
   const { user, body } = await getUser(req.body);
 
   if (!user) {
@@ -33,13 +36,19 @@ const logIn = async (req, res, next) => {
     throw HttpError(401, "Email or password is wrong");
   }
   const { email, subscription } = user;
+  const payload = { id: user._id };
+  const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "23h" });
 
-  res
-    .status(200)
-    .json({ token: "exampletoken", user: { email, subscription } });
+  res.status(200).json({ token, user: { email, subscription } });
 };
 
+// const logout = async (req, res, next) => {
+//   const { id } = req.body;
+//   const user = User.findOne({ _id: id });
+// };
+
 module.exports = {
-  signUp: ctrlWrapper(signUp),
-  logIn: ctrlWrapper(logIn),
+  register: ctrlWrapper(register),
+  login: ctrlWrapper(login),
+  // logout: ctrlWrapper(logout),
 };

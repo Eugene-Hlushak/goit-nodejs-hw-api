@@ -7,7 +7,7 @@ const {
   updateStatusContact,
 } = require("./conatctControllers");
 
-const { signUp, logIn } = require("./userControllers");
+const { register, login, logout } = require("./userControllers");
 
 module.exports = {
   listContacts,
@@ -16,6 +16,7 @@ module.exports = {
   removeContact,
   updateContact,
   updateStatusContact,
-  signUp,
-  logIn,
+  register,
+  login,
+  logout,
 };
