@@ -2,14 +2,28 @@ const { ctrlWrapper } = require("../decorators/ctrlWrapper");
 const { Contact, contactSchemas } = require("../models/contact");
 const { HttpError, bodyValidation } = require("../services");
 
+const checkContacts = async (body, owner) => {
+  const { name, phone, email } = body;
+  const contacts = await Contact.find({ owner }, "-owner");
+  const check = contacts.find(
+    (contact) =>
+      contact.name === name ||
+      contact.phone === phone ||
+      contact.email === email
+  );
+  console.log(check);
+  return check;
+};
+
 const listContacts = async (req, res) => {
-  const contacts = await Contact.find();
+  const { _id: owner } = req.user;
+  const contacts = await Contact.find({ owner }, "-owner");
   res.json(contacts);
 };
 
 const getContactById = async (req, res, next) => {
   const id = req.params.contactId;
-  const contact = await Contact.findById(id);
+  const contact = await Contact.findById(id, "-owner");
   if (!contact) throw HttpError(404);
   res.json(contact);
 };
@@ -25,8 +39,13 @@ const removeContact = async (req, res, next) => {
 };
 
 const addContact = async (req, res, next) => {
+  const { _id: owner } = req.user;
   const body = bodyValidation(contactSchemas.addContactSchema, req.body);
-  const result = await Contact.create(body);
+  const contactExist = await checkContacts(body, owner);
+  if (contactExist) {
+    throw HttpError(409, "Contact already exists");
+  }
+  const result = await Contact.create({ ...body, owner });
   res.status(201).json(result);
 };
 

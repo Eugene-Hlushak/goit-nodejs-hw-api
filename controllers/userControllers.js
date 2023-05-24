@@ -14,8 +14,9 @@ async function getUser(data) {
 
 const register = async (req, res, next) => {
   const { user, body } = await getUser(req.body);
+
   if (user) {
-    throw HttpError(409, "Email in use");
+    throw HttpError(409);
   }
   const hashPassword = await bcrypt.hash(body.password, 10);
   const { email, subscription } = await User.create({
