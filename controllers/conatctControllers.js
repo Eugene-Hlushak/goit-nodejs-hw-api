@@ -4,21 +4,34 @@ const { HttpError, bodyValidation } = require("../services");
 
 const checkContacts = async (body, owner) => {
   const { name, phone, email } = body;
-  const contacts = await Contact.find({ owner }, "-owner");
+  const contacts = await Contact.find({ owner });
   const check = contacts.find(
     (contact) =>
       contact.name === name ||
       contact.phone === phone ||
       contact.email === email
   );
-  console.log(check);
   return check;
 };
 
 const listContacts = async (req, res) => {
   const { _id: owner } = req.user;
-  const contacts = await Contact.find({ owner }, "-owner");
-  res.json(contacts);
+  const { page, limit, favorite } = req.query;
+  const skip = (page - 1) * limit;
+
+  if (favorite) {
+    const favoriteContacts = await Contact.find({ owner, favorite }, "-owner", {
+      skip,
+      limit,
+    });
+    res.json(favoriteContacts);
+  }
+  const allContacts = await Contact.find({ owner }, "-owner", {
+    skip,
+    limit,
+  });
+
+  res.json(allContacts);
 };
 
 const getContactById = async (req, res, next) => {

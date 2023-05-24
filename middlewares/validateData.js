@@ -53,7 +53,6 @@ const validateContactFavorite = (schema) => {
 
 const validateUserData = (schema) => {
   const func = async (req, res, next) => {
-    console.log(req.body);
     if (Object.keys(req.body).length === 0) {
       next(HttpError(400, "missing fields"));
     }
@@ -61,7 +60,7 @@ const validateUserData = (schema) => {
     const { error } = schema.validate(req.body);
     if (error) {
       const missingField = error.details[0].context.key;
-      console.log(error.details);
+
       const { type } = error.details[0];
       if (type === "any.required") {
         next(HttpError(400, `Missing required ${missingField} field`));
