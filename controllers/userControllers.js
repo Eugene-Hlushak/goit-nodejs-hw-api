@@ -55,7 +55,7 @@ const logout = async (req, res, next) => {
   }
 };
 
-const currentUser = async (req, res) => {
+const getCurrentUser = async (req, res) => {
   const { email, subscription } = req.user;
   res.json({ email, subscription });
 };
@@ -84,5 +84,5 @@ module.exports = {
   login: ctrlWrapper(login),
   logout: ctrlWrapper(logout),
   updateSubscription: ctrlWrapper(updateSubscription),
-  currentUser: ctrlWrapper(currentUser),
+  getCurrentUser: ctrlWrapper(getCurrentUser),
 };

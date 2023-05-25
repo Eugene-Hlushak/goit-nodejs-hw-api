@@ -11,7 +11,7 @@ const {
   register,
   login,
   logout,
-  currentUser,
+  getCurrentUser,
   updateSubscription,
 } = require("./userControllers");
 
@@ -25,6 +25,6 @@ module.exports = {
   register,
   login,
   logout,
-  currentUser,
+  getCurrentUser,
   updateSubscription,
 };

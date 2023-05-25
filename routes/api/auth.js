@@ -4,7 +4,7 @@ const {
   register,
   login,
   logout,
-  currentUser,
+  getCurrentUser,
   updateSubscription,
 } = require("../../controllers");
 const { validateUserData, authenticate } = require("../../middlewares");
@@ -26,7 +26,7 @@ router.post(
 
 router.post("/logout", authenticate, logout);
 
-router.get("/current", authenticate, currentUser);
+router.get("/current", authenticate, getCurrentUser);
 
 router.patch(
   "/",
