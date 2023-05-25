@@ -16,22 +16,22 @@ const checkContacts = async (body, owner) => {
 
 const listContacts = async (req, res) => {
   const { _id: owner } = req.user;
-  const { page, limit, favorite } = req.query;
+  const { page, limit, favorite = "" } = req.query;
   const skip = (page - 1) * limit;
-
-  if (favorite) {
-    const favoriteContacts = await Contact.find({ owner, favorite }, "-owner", {
+  if (favorite === "true" || favorite === "false") {
+    const filteredContacts = await Contact.find({ owner, favorite }, "-owner", {
       skip,
       limit,
     });
-    res.json(favoriteContacts);
-  }
-  const allContacts = await Contact.find({ owner }, "-owner", {
-    skip,
-    limit,
-  });
+    res.json(filteredContacts);
+  } else {
+    const allContacts = await Contact.find({ owner }, "-owner", {
+      skip,
+      limit,
+    });
 
-  res.json(allContacts);
+    res.json(allContacts);
+  }
 };
 
 const getContactById = async (req, res, next) => {
@@ -54,10 +54,12 @@ const removeContact = async (req, res, next) => {
 const addContact = async (req, res, next) => {
   const { _id: owner } = req.user;
   const body = bodyValidation(contactSchemas.addContactSchema, req.body);
+
   const contactExist = await checkContacts(body, owner);
   if (contactExist) {
-    throw HttpError(409, "Contact already exists");
+    throw HttpError(409, "Contact with similar data already exists");
   }
+
   const result = await Contact.create({ ...body, owner });
   res.status(201).json(result);
 };

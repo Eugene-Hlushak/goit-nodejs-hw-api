@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken");
 const { SECRET_KEY } = process.env;
 
 async function getUser(data) {
-  const body = bodyValidation(authSchemas.signSchema, data);
+  const body = bodyValidation(authSchemas.userJoiSchema, data);
   const user = await User.findOne({ email: body.email });
   return { user, body };
 }
@@ -28,14 +28,15 @@ const register = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   const { user, body } = await getUser(req.body);
-
   if (!user) {
     throw HttpError(401, "Email or password is wrong");
   }
+
   const isMatch = await bcrypt.compare(body.password, user.password);
   if (!isMatch) {
     throw HttpError(401, "Email or password is wrong");
   }
+
   const { email, subscription } = user;
   const payload = { id: user._id };
   const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "23h" });
@@ -50,7 +51,7 @@ const logout = async (req, res, next) => {
   if (!user) {
     throw HttpError(401);
   } else {
-    res.status(204).json("No content");
+    res.status(204).json("");
   }
 };
 
@@ -59,9 +60,29 @@ const currentUser = async (req, res) => {
   res.json({ email, subscription });
 };
 
+const updateSubscription = async (req, res) => {
+  const body = bodyValidation(authSchemas.subscriptionSchema, req.body);
+  const { _id: id } = req.user;
+
+  const user = await User.findByIdAndUpdate(
+    id,
+    {
+      subscription: body.subscription,
+    },
+    { new: true }
+  );
+  if (!user) {
+    throw HttpError(401);
+  } else {
+    const { email, subscription } = user;
+    res.status(200).json({ user: { email, subscription } });
+  }
+};
+
 module.exports = {
   register: ctrlWrapper(register),
   login: ctrlWrapper(login),
   logout: ctrlWrapper(logout),
-  currentUser,
+  updateSubscription: ctrlWrapper(updateSubscription),
+  currentUser: ctrlWrapper(currentUser),
 };

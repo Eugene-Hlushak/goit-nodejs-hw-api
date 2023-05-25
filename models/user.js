@@ -29,7 +29,7 @@ userSchema.post("save", mongooseErrorHandler);
 
 const User = model("user", userSchema);
 
-const signSchema = Joi.object({
+const userJoiSchema = Joi.object({
   email: Joi.string()
     .trim()
     .email({
@@ -38,12 +38,16 @@ const signSchema = Joi.object({
     })
     .required(),
   password: Joi.string().trim().min(6).required(),
+});
+
+const subscriptionSchema = Joi.object({
   subscription: Joi.string().trim().valid("starter", "pro", "business"),
 });
 
 const authSchemas = {
   userSchema,
-  signSchema,
+  userJoiSchema,
+  subscriptionSchema,
 };
 
 module.exports = { User, authSchemas };
