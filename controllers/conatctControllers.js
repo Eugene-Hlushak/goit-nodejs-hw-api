@@ -16,7 +16,7 @@ const checkContacts = async (body, owner) => {
 
 const listContacts = async (req, res) => {
   const { _id: owner } = req.user;
-  const { page, limit, favorite = "" } = req.query;
+  const { page, limit, favorite } = req.query;
   const skip = (page - 1) * limit;
   if (favorite === "true" || favorite === "false") {
     const filteredContacts = await Contact.find({ owner, favorite }, "-owner", {
