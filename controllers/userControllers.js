@@ -3,6 +3,7 @@ const { User, authSchemas } = require("../models/user");
 const { HttpError, bodyValidation } = require("../services");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const gravatar = require("gravatar");
 
 const { SECRET_KEY } = process.env;
 
@@ -18,10 +19,13 @@ const register = async (req, res, next) => {
   if (user) {
     throw HttpError(409);
   }
+  const avatar = gravatar.url(body.email);
+  console.log(avatar);
   const hashPassword = await bcrypt.hash(body.password, 10);
   const { email, subscription } = await User.create({
     ...body,
     password: hashPassword,
+    avatarUrl: avatar,
   });
   res.status(201).json({ user: { email, subscription } });
 };
