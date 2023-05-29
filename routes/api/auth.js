@@ -1,11 +1,13 @@
 const express = require("express");
 const router = express.Router();
+const { upload } = require("../../multer");
 const {
   register,
   login,
   logout,
   getCurrentUser,
   updateSubscription,
+  changeAvatar,
 } = require("../../controllers");
 const { validateUserData, authenticate } = require("../../middlewares");
 const { authSchemas } = require("../../models/user");
@@ -34,4 +36,6 @@ router.patch(
   validateUserData(authSchemas.subscriptionSchema),
   updateSubscription
 );
+
+router.patch("/avatar", authenticate, upload.single("avatar"), changeAvatar);
 module.exports = router;

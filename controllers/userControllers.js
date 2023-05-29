@@ -4,6 +4,9 @@ const { HttpError, bodyValidation } = require("../services");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const gravatar = require("gravatar");
+const fs = require("fs/promises");
+const path = require("path");
+const { avatarsDir } = require("../multer");
 
 const { SECRET_KEY } = process.env;
 
@@ -83,10 +86,17 @@ const updateSubscription = async (req, res) => {
   }
 };
 
+const changeAvatar = async (req, res, next) => {
+  const { path: tmpUpload, originalname } = req.file;
+  const destinationUpload = path.join(avatarsDir, originalname);
+  await fs.rename(tmpUpload, destinationUpload);
+};
+
 module.exports = {
   register: ctrlWrapper(register),
   login: ctrlWrapper(login),
   logout: ctrlWrapper(logout),
   updateSubscription: ctrlWrapper(updateSubscription),
   getCurrentUser: ctrlWrapper(getCurrentUser),
+  changeAvatar: ctrlWrapper(changeAvatar),
 };
