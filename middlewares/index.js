@@ -5,7 +5,7 @@ const {
   validateUserData,
 } = require("./validateData");
 const authenticate = require("./authenticate");
-const { upload, avatarsDir } = require("./upload");
+const upload = require("./upload");
 
 module.exports = {
   isValidId,
@@ -14,5 +14,4 @@ module.exports = {
   validateUserData,
   authenticate,
   upload,
-  avatarsDir,
 };
