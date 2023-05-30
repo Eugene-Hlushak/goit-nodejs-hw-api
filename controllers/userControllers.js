@@ -3,10 +3,10 @@ const { User, authSchemas } = require("../models/user");
 const { HttpError, bodyValidation } = require("../services");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+// const jimp = require("jimp");
 const gravatar = require("gravatar");
 const fs = require("fs/promises");
 const path = require("path");
-const { avatarsDir } = require("../multer");
 
 const { SECRET_KEY } = process.env;
 
@@ -88,6 +88,8 @@ const updateSubscription = async (req, res) => {
 
 const changeAvatar = async (req, res, next) => {
   const { path: tmpUpload, originalname } = req.file;
+  const avatarsDir = path.join(__dirname, "../", "public", "avatars");
+
   const destinationUpload = path.join(avatarsDir, originalname);
   await fs.rename(tmpUpload, destinationUpload);
 };

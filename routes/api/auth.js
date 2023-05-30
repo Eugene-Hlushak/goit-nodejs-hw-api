@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const { upload } = require("../../multer");
 const {
   register,
   login,
@@ -9,7 +8,7 @@ const {
   updateSubscription,
   changeAvatar,
 } = require("../../controllers");
-const { validateUserData, authenticate } = require("../../middlewares");
+const { validateUserData, authenticate, upload } = require("../../middlewares");
 const { authSchemas } = require("../../models/user");
 
 router.post(
