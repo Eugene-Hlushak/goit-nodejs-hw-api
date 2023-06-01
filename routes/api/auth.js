@@ -30,7 +30,7 @@ router.patch(
 );
 
 router.patch(
-  "/avatar",
+  "/avatars",
   mw.authenticate,
   mw.upload.single("avatar"),
   ctrl.changeAvatar
