@@ -1,4 +1,4 @@
-const { HttpError } = require("../services");
+const { HttpError } = require("../helpers");
 
 const validateContactData = (schema) => {
   const func = async (req, res, next) => {

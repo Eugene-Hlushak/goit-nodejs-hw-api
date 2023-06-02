@@ -5,6 +5,7 @@ const {
   validateUserData,
 } = require("./validateData");
 const authenticate = require("./authenticate");
+const upload = require("./upload");
 
 module.exports = {
   isValidId,
@@ -12,4 +13,5 @@ module.exports = {
   validateContactFavorite,
   validateUserData,
   authenticate,
+  upload,
 };
