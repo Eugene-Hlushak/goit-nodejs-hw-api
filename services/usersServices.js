@@ -7,11 +7,12 @@ async function getUser(data) {
   return { user, body };
 }
 
-const createNewUser = async (body, hashPassword, avatar) =>
-  await await User.create({
+const createNewUser = async (body, hashPassword, avatar, verificationToken) =>
+  await User.create({
     ...body,
     password: hashPassword,
     avatarUrl: avatar,
+    verificationToken,
   });
 
 const loginUser = async (id, token) =>

@@ -11,6 +11,8 @@ router.post(
   ctrl.register
 );
 
+router.get("/verify/:verificationToken");
+
 router.post(
   "/login",
 
