@@ -53,10 +53,21 @@ const subscriptionSchema = Joi.object({
   subscription: Joi.string().trim().valid("starter", "pro", "business"),
 });
 
+const verifyEmailSchema = Joi.object({
+  email: Joi.string()
+    .trim()
+    .email({
+      minDomainSegments: 2,
+      tlds: { allow: ["com", "net"] },
+    })
+    .required(),
+});
+
 const authSchemas = {
   userSchema,
   userJoiSchema,
   subscriptionSchema,
+  verifyEmailSchema,
 };
 
 module.exports = { User, authSchemas };

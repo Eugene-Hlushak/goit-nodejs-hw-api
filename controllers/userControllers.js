@@ -13,8 +13,7 @@ const { SENDER_EMAIL, SECRET_KEY, PROJECT_URL } = process.env;
 // register
 
 const register = async (req, res, next) => {
-  // console.log(req.body);
-  const { user, body } = await service.getUser(req.body);
+  const { user, body } = await service.getUserByEmail(req.body);
 
   if (user) {
     throw help.HttpError(409);
@@ -46,18 +45,21 @@ const register = async (req, res, next) => {
 // verification
 
 const verifyUserEmail = async (req, res, next) => {
+  console.log(req.params);
   const { verificationToken } = req.params;
-  const user = await service.verifyUser(verificationToken);
-  if (!user) {
+  const user = await service.getUserByVerifyToken(verificationToken);
+  if (!user || !user.verificationToken) {
     throw help.HttpError(404, "User not found");
   }
-  res.json({ message: "Verification successful", user });
+  await service.verifyUser(verificationToken);
+  res.json({ message: "Verification successful" });
 };
 
 // login
 
 const login = async (req, res, next) => {
-  const { user, body } = await service.getUser(req.body);
+  const { user, body } = await service.getUserByEmail(req.body);
+
   if (!user) {
     throw help.HttpError(401, "Email or password is wrong");
   }
@@ -65,6 +67,10 @@ const login = async (req, res, next) => {
   const isMatch = await bcrypt.compare(body.password, user.password);
   if (!isMatch) {
     throw help.HttpError(401, "Email or password is wrong");
+  }
+
+  if (!user.verify) {
+    throw help.HttpError(401, "Your email is not verified");
   }
 
   const { email, subscription } = user;
@@ -123,6 +129,27 @@ const changeAvatar = async (req, res, next) => {
   res.status(200).json({ avatarUrl });
 };
 
+// send again verify email
+
+const reSendVerifyEmail = async (req, res, next) => {
+  const { user } = await service.getUserByEmail(req.body);
+  if (!user) {
+    throw help.HttpError(404, "User not found");
+  }
+  if (user.verify) {
+    throw help.HttpError(400, "Verification has already been passed");
+  }
+  const { email, verificationToken } = user;
+
+  await help.sendVerifyEmail(
+    email,
+    SENDER_EMAIL,
+    PROJECT_URL,
+    verificationToken
+  );
+  res.json({ message: "Verification email sent" });
+};
+
 module.exports = {
   register: ctrlWrapper(register),
   login: ctrlWrapper(login),
@@ -131,4 +158,5 @@ module.exports = {
   getCurrentUser: ctrlWrapper(getCurrentUser),
   changeAvatar: ctrlWrapper(changeAvatar),
   verifyUserEmail: ctrlWrapper(verifyUserEmail),
+  reSendVerifyEmail: ctrlWrapper(reSendVerifyEmail),
 };

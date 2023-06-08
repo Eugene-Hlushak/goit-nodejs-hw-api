@@ -1,10 +1,16 @@
 const { User, authSchemas } = require("../models/user");
 const { bodyValidation } = require("../helpers");
 
-async function getUser(data) {
+async function getUserByEmail(data) {
   const body = bodyValidation(authSchemas.userJoiSchema, data);
   const user = await User.findOne({ email: body.email });
   return { user, body };
+}
+
+async function getUserByVerifyToken(token) {
+  console.log(token);
+  const user = await User.findOne({ verificationToken: token });
+  return user;
 }
 
 const createNewUser = async (body, hashPassword, avatar, verificationToken) =>
@@ -41,7 +47,8 @@ const verifyUser = async (verificationToken) =>
   );
 
 module.exports = {
-  getUser,
+  getUserByEmail,
+  getUserByVerifyToken,
   createNewUser,
   loginUser,
   logoutUser,
