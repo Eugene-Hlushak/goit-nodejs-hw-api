@@ -33,16 +33,25 @@ const register = async (req, res, next) => {
     verificationToken
   );
 
-  const verifyEmail = help.createVerifyEmail(
+  await help.sendVerifyEmail(
     email,
     SENDER_EMAIL,
     PROJECT_URL,
     verificationToken
   );
 
-  await help.sendVerifyEmail(verifyEmail);
-
   res.status(201).json({ user: { email, subscription } });
+};
+
+// verification
+
+const verifyUserEmail = async (req, res, next) => {
+  const { verificationToken } = req.params;
+  const user = await service.verifyUser(verificationToken);
+  if (!user) {
+    throw help.HttpError(404, "User not found");
+  }
+  res.json({ message: "Verification successful", user });
 };
 
 // login
@@ -121,4 +130,5 @@ module.exports = {
   updateSubscription: ctrlWrapper(updateSubscription),
   getCurrentUser: ctrlWrapper(getCurrentUser),
   changeAvatar: ctrlWrapper(changeAvatar),
+  verifyUserEmail: ctrlWrapper(verifyUserEmail),
 };

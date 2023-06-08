@@ -33,6 +33,13 @@ const updSubscription = async (id, data) =>
 const editAvatar = async (id, avatarUrl) =>
   await User.findByIdAndUpdate(id, { avatarUrl });
 
+const verifyUser = async (verificationToken) =>
+  await User.findOneAndUpdate(
+    { verificationToken },
+    { verify: true, verificationToken: "" },
+    { new: true }
+  );
+
 module.exports = {
   getUser,
   createNewUser,
@@ -40,4 +47,5 @@ module.exports = {
   logoutUser,
   updSubscription,
   editAvatar,
+  verifyUser,
 };
