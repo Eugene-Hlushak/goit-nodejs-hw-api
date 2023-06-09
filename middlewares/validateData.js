@@ -36,9 +36,6 @@ const validateContactFavorite = (schema) => {
         case "boolean.base":
           next(HttpError(400, `Field ${missingField} must be a boolean`));
           break;
-        case "string.empty":
-          next(HttpError(400, `${missingField} ${emptyFieldMessage}`));
-          break;
         default:
           next(HttpError(400, `${missingFieldMessage} ${missingField}`));
       }
@@ -74,9 +71,8 @@ const validateUserData = (schema) => {
         default:
           next(HttpError(400, `${missingFieldMessage} ${missingField}`));
       }
-
-      next();
     }
+    next();
   };
   return func;
 };
@@ -85,7 +81,6 @@ const validateUserEmail = (schema) => {
   const func = async (req, res, next) => {
     const { error } = schema.validate(req.body);
     if (error) {
-      console.log(error);
       const missingField = error.details[0].context.key;
       const { type } = error.details[0];
       switch (type) {

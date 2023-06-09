@@ -24,7 +24,6 @@ const createVerifyEmail = (to, from, url, token) => {
 
 const sendVerifyEmail = async (to, from, url, token) => {
   const email = createVerifyEmail(to, from, url, token);
-  console.log("sent email --> ", email);
   await transport.sendMail(email);
 };
 

@@ -8,7 +8,6 @@ async function getUserByEmail(data) {
 }
 
 async function getUserByVerifyToken(token) {
-  console.log(token);
   const user = await User.findOne({ verificationToken: token });
   return user;
 }

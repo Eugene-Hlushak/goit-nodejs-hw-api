@@ -10,6 +10,8 @@ const path = require("path");
 const service = require("../services/usersServices");
 const { SENDER_EMAIL, SECRET_KEY, PROJECT_URL } = process.env;
 
+const SomethingWrongMessage = "Email or password is wrong";
+
 // register
 
 const register = async (req, res, next) => {
@@ -45,7 +47,6 @@ const register = async (req, res, next) => {
 // verification
 
 const verifyUserEmail = async (req, res, next) => {
-  console.log(req.params);
   const { verificationToken } = req.params;
   const user = await service.getUserByVerifyToken(verificationToken);
   if (!user || !user.verificationToken) {
@@ -61,12 +62,12 @@ const login = async (req, res, next) => {
   const { user, body } = await service.getUserByEmail(req.body);
 
   if (!user) {
-    throw help.HttpError(401, "Email or password is wrong");
+    throw help.HttpError(401, SomethingWrongMessage);
   }
 
   const isMatch = await bcrypt.compare(body.password, user.password);
   if (!isMatch) {
-    throw help.HttpError(401, "Email or password is wrong");
+    throw help.HttpError(401, SomethingWrongMessage);
   }
 
   if (!user.verify) {
