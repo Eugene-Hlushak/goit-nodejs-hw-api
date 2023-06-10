@@ -1,17 +1,23 @@
 const { User, authSchemas } = require("../models/user");
 const { bodyValidation } = require("../helpers");
 
-async function getUser(data) {
+async function getUserByEmail(data) {
   const body = bodyValidation(authSchemas.userJoiSchema, data);
   const user = await User.findOne({ email: body.email });
   return { user, body };
 }
 
-const createNewUser = async (body, hashPassword, avatar) =>
-  await await User.create({
+async function getUserByVerifyToken(token) {
+  const user = await User.findOne({ verificationToken: token });
+  return user;
+}
+
+const createNewUser = async (body, hashPassword, avatar, verificationToken) =>
+  await User.create({
     ...body,
     password: hashPassword,
     avatarUrl: avatar,
+    verificationToken,
   });
 
 const loginUser = async (id, token) =>
@@ -32,11 +38,20 @@ const updSubscription = async (id, data) =>
 const editAvatar = async (id, avatarUrl) =>
   await User.findByIdAndUpdate(id, { avatarUrl });
 
+const verifyUser = async (verificationToken) =>
+  await User.findOneAndUpdate(
+    { verificationToken },
+    { verify: true, verificationToken: "" },
+    { new: true }
+  );
+
 module.exports = {
-  getUser,
+  getUserByEmail,
+  getUserByVerifyToken,
   createNewUser,
   loginUser,
   logoutUser,
   updSubscription,
   editAvatar,
+  verifyUser,
 };

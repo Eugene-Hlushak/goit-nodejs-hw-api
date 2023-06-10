@@ -11,6 +11,14 @@ router.post(
   ctrl.register
 );
 
+router.get("/verify/:verificationToken", ctrl.verifyUserEmail);
+
+router.post(
+  "/verify",
+  mw.validateUserEmail(authSchemas.verifyEmailSchema),
+  ctrl.reSendVerifyEmail
+);
+
 router.post(
   "/login",
 
@@ -35,4 +43,5 @@ router.patch(
   mw.upload.single("avatar"),
   ctrl.changeAvatar
 );
+
 module.exports = router;

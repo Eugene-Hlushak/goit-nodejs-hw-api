@@ -1,5 +1,8 @@
 const { HttpError } = require("../helpers");
 
+const missingFieldMessage = "Missing required field -";
+const emptyFieldMessage = " field is not allowed to be empty";
+
 const validateContactData = (schema) => {
   const func = async (req, res, next) => {
     if (Object.keys(req.body).length === 0) {
@@ -11,12 +14,10 @@ const validateContactData = (schema) => {
       const missingField = error.details[0].context.key;
       const { type } = error.details[0];
       if (type === "any.required") {
-        next(HttpError(400, `Missing required ${missingField} field`));
+        next(HttpError(400, `${missingFieldMessage} ${missingField}`));
       }
       if (type === "string.empty") {
-        next(
-          HttpError(400, `Field ${missingField} is not allowed to be empty`)
-        );
+        next(HttpError(400, `${missingField} ${emptyFieldMessage}`));
       }
     }
 
@@ -27,23 +28,16 @@ const validateContactData = (schema) => {
 
 const validateContactFavorite = (schema) => {
   const func = async (req, res, next) => {
-    const keys = Object.keys(req.body);
-
-    const isFavoriteField = keys.some((key) => key === "favorite");
-
-    if (keys.length === 0 || (keys.length > 0 && !isFavoriteField)) {
-      next(HttpError(400, "missing field favorite"));
-    }
-    if (keys.length > 1 && isFavoriteField) {
-      next(HttpError(400, "leave only field favorite"));
-    }
-
     const { error } = schema.validate(req.body);
     if (error) {
-      const missingField = error.details[0].context.key;
       const { type } = error.details[0];
-      if (type === "boolean.base") {
-        next(HttpError(400, `Field ${missingField} must be a boolean`));
+      const missingField = error.details[0].context.key;
+      switch (type) {
+        case "boolean.base":
+          next(HttpError(400, `Field ${missingField} must be a boolean`));
+          break;
+        default:
+          next(HttpError(400, `${missingFieldMessage} ${missingField}`));
       }
     }
     next();
@@ -62,21 +56,42 @@ const validateUserData = (schema) => {
       const missingField = error.details[0].context.key;
 
       const { type } = error.details[0];
-      if (type === "any.required") {
-        next(HttpError(400, `Missing required ${missingField} field`));
+      switch (type) {
+        case "any.only":
+          next(
+            HttpError(
+              400,
+              `Field ${missingField} must be one of [starter, pro ,business]`
+            )
+          );
+          break;
+        case "string.empty":
+          next(HttpError(400, `${missingField} ${emptyFieldMessage}`));
+          break;
+        default:
+          next(HttpError(400, `${missingFieldMessage} ${missingField}`));
       }
-      if (type === "string.empty") {
-        next(
-          HttpError(400, `Field ${missingField} is not allowed to be empty`)
-        );
-      }
-      if (type === "any.only") {
-        next(
-          HttpError(
-            400,
-            `Field ${missingField} must be one of [starter, pro ,business]`
-          )
-        );
+    }
+    next();
+  };
+  return func;
+};
+
+const validateUserEmail = (schema) => {
+  const func = async (req, res, next) => {
+    const { error } = schema.validate(req.body);
+    if (error) {
+      const missingField = error.details[0].context.key;
+      const { type } = error.details[0];
+      switch (type) {
+        case "any.required":
+          next(HttpError(400, `${missingFieldMessage} ${missingField}`));
+          break;
+        case "string.empty":
+          next(HttpError(400, `${missingField} ${emptyFieldMessage}`));
+          break;
+        default:
+          next(HttpError(400, `your ${missingField} is not valid`));
       }
     }
 
@@ -89,4 +104,5 @@ module.exports = {
   validateContactData,
   validateContactFavorite,
   validateUserData,
+  validateUserEmail,
 };
